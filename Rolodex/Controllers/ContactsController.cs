@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Rolodex.Models;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -8,10 +10,15 @@ namespace Rolodex.Controllers
 {
     public class ContactsController : Controller
     {
+        private DataContext _db = new DataContext();
+
         // GET: Contacts
         public ActionResult Index()
         {
-            return View();
+            var contacts = (from c in _db.Contacts.Include(c => c.Address)
+                           select c).ToList();
+
+            return View(contacts);
         }
 
         // GET: Contacts/Details/5
@@ -28,7 +35,7 @@ namespace Rolodex.Controllers
 
         // POST: Contacts/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(Contact collection)
         {
             try
             {
@@ -45,23 +52,25 @@ namespace Rolodex.Controllers
         // GET: Contacts/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var contact = _db.Contacts.Find(id);
+            return View(contact);
         }
 
         // POST: Contacts/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(int id, Contact contact)
         {
-            try
-            {
-                // TODO: Add update logic here
+            if (ModelState.IsValid) {
+                var dbContact = _db.Contacts.Find(id);
+                dbContact.Name = contact.Name;
+                dbContact.Phone = contact.Phone;
+                dbContact.Birthday = contact.Birthday;
+                _db.SaveChanges();
 
                 return RedirectToAction("Index");
             }
-            catch
-            {
-                return View();
-            }
+            // else there was an error
+            return View();
         }
 
         // GET: Contacts/Delete/5

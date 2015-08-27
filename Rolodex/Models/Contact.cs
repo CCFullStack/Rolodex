@@ -18,5 +18,7 @@ namespace Rolodex.Models {
         public string Phone { get; set; }
 
         public Address Address { get; set; }
+        
+        public DateTime Birthday { get; set; }
     }
 }
